@@ -42,3 +42,6 @@ next-env.d.ts
 
 #Spell checker
 cspell.json
+
+#Notes
+Notes.md
