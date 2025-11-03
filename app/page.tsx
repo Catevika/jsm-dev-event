@@ -1,23 +1,22 @@
 import EventCard from '@/components/EventCard';
 import ExploreBtn from '@/components/ExploreBtn';
+import type {IEvent} from '@/database';
 import {cacheLife} from 'next/cache';
 
-import {events} from '@/lib/constants';
-
-// const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const Home = async () => {
 	'use cache';
 	cacheLife('hours');
 
-	// const response = await fetch(`${BASE_URL}/api/events`);
-	// const data = await response.json();
+	const response = await fetch(`${BASE_URL}/api/events`);
+	const data = await response.json();
 
-	// if (!response.ok || !data || typeof data !== 'object') {
-	// 	throw new Error('Invalid or incomplete JSON data');
-	// }
+	if (!response.ok || !data || typeof data !== 'object') {
+		throw new Error('Invalid or incomplete JSON data');
+	}
 
-	// const {events} = data;
+	const {events} = data;
 
 	return (
 		<section>
@@ -36,7 +35,7 @@ const Home = async () => {
 				<ul className='events'>
 					{events &&
 						events.length > 0 &&
-						events.map((event: any) => (
+						events.map((event: IEvent) => (
 							<li key={event.title}>
 								<EventCard {...event} />
 							</li>
