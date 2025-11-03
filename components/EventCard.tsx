@@ -11,7 +11,7 @@ const EventCard = ({
 }: eventCardProps) => {
 	return (
 		<Link
-			href='/events'
+			href={`/events/${slug}`}
 			id='event-card'>
 			<Image
 				src={image}

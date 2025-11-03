@@ -110,10 +110,12 @@ const EventSchema = new Schema<IEvent>(
 );
 
 // Pre-save hook for slug generation and date/time normalization
-EventSchema.pre('save', function (next) {
+EventSchema.pre('save', async function (next) {
+	const event = this as IEvent;
+
 	// Generate slug only if title is modified or document is new
-	if (this.isModified('title')) {
-		this.slug = this.title
+	if (event.isModified('title')) {
+		event.slug = event.title
 			.toLowerCase()
 			.trim()
 			.replace(/[^\w\s-]/g, '') // Remove special characters
@@ -123,27 +125,24 @@ EventSchema.pre('save', function (next) {
 	}
 
 	// Normalize date to ISO format (YYYY-MM-DD)
-	if (this.isModified('date')) {
-		const parsedDate = new Date(this.date);
+	if (event.isModified('date')) {
+		const parsedDate = new Date(event.date);
 		if (isNaN(parsedDate.getTime())) {
 			return next(new Error('Invalid date format'));
 		}
-		this.date = parsedDate.toISOString().split('T')[0];
+		event.date = parsedDate.toISOString().split('T')[0];
 	}
 
 	// Normalize time to 24-hour format (HH:MM)
-	if (this.isModified('time')) {
+	if (event.isModified('time')) {
 		const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
-		if (!timeRegex.test(this.time)) {
+		if (!timeRegex.test(event.time)) {
 			return next(new Error('Time must be in HH:MM format (24-hour)'));
 		}
 	}
 
 	next();
 });
-
-// Create unique index on slug
-EventSchema.index({slug: 1}, {unique: true});
 
 // Prevent model recompilation in development (Next.js hot reload)
 const Event = models.Event || model<IEvent>('Event', EventSchema);
