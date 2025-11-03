@@ -1,54 +1,13 @@
 import BookEvents from '@/components/BookEvents';
+import EventAgenda from '@/components/EventAgenda';
 import EventCard from '@/components/EventCard';
-import { getSimilarEventsBySlug } from '@/lib/actions/event.actions';
-import { cacheLife } from 'next/cache';
+import EventDetailItem from '@/components/EventDetailItem';
+import EventTags from '@/components/EventTags';
+import {getSimilarEventsBySlug} from '@/lib/actions/event.actions';
 import Image from 'next/image';
-import { notFound } from 'next/navigation';
+import {notFound} from 'next/navigation';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
-
-const EventDetailItem = ({
-	icon,
-	alt,
-	label,
-}: {
-	icon: string;
-	alt: string;
-	label: string;
-}) => (
-	<div className='flex-row-gap-2 items-center'>
-		<Image
-			src={icon}
-			alt={alt}
-			width={17}
-			height={17}
-		/>
-		<p>{label}</p>
-	</div>
-);
-
-const EventAgenda = ({agendaItems}: {agendaItems: string[]}) => (
-	<div className='agenda'>
-		<h2>Agenda</h2>
-		<ul>
-			{agendaItems.map((item) => (
-				<li key={item}>{item}</li>
-			))}
-		</ul>
-	</div>
-);
-
-const EventTags = ({tags}: {tags: string[]}) => (
-	<div className='flex flex-row gap-1.5 flex-wrap'>
-		{tags.map((tag) => (
-			<div
-				className='pill'
-				key={tag}>
-				{tag}
-			</div>
-		))}
-	</div>
-);
 
 const EventDetails = async ({params}: {params: Promise<string>}) => {
 	const slug = await params;
