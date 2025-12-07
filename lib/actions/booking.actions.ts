@@ -1,11 +1,13 @@
-'use server';
-import Booking from '@/database/booking.model';
-import connectDB from '../mongodb';
+"use server";
+import Booking from "@/database/booking.model";
+import Event from "@/database/event.model";
+import connectDB from "../mongodb";
+import Error from "next/error";
 
 export async function createBooking({
 	eventId,
 	slug,
-	email,
+	email
 }: {
 	eventId: string;
 	slug: string;
@@ -14,17 +16,32 @@ export async function createBooking({
 	try {
 		await connectDB();
 
-		await Booking.create({
+		// 1. Validate event exists
+		const eventExists = await Event.findById(eventId).select("_id");
+		if (!eventExists) {
+			return {
+				success: false,
+				error: `Event with ID ${eventId} does not exist`
+			};
+		}
+
+		// 2. Create booking
+		const booking = await Booking.create({
 			eventId,
 			slug,
-			email,
+			email
 		});
 
-		return {success: true};
+		return {
+			success: true,
+			bookingId: booking._id
+		};
 	} catch (err) {
-		console.error('Create booking failed');
+		console.error(err, "Create booking failed");
+
 		return {
 			success: false,
+			error: "Create booking failed"
 		};
 	}
 }

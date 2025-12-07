@@ -1,28 +1,28 @@
-import EventCard from '@/components/EventCard';
-import ExploreBtn from '@/components/ExploreBtn';
-import type {IEvent} from '@/database';
-import {cacheLife} from 'next/cache';
+import EventCard from "@/components/EventCard";
+import ExploreBtn from "@/components/ExploreBtn";
+import type { IEvent } from "@/database";
+import { cacheLife } from "next/cache";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const Home = async () => {
-	'use cache';
-	cacheLife('hours');
+	"use cache";
+	cacheLife("hours");
 
 	const response = await fetch(`${BASE_URL}/api/events`);
 	const data = await response.json();
 
-	if (!response.ok || !data || typeof data !== 'object') {
-		throw new Error('Invalid or incomplete JSON data');
+	if (!response.ok || !data || typeof data !== "object") {
+		throw new Error("Invalid or incomplete JSON data");
 	}
 
-	const {events} = data;
+	const { events } = data;
 
 	return (
 		<section>
 			<h1 className='text-center'>
 				The Hub for Every Dev <br />
-				Event you Can't Miss
+				Event you Can&apos;t Miss
 			</h1>
 			<p className='text-center mt-5'>
 				Hackatons, Meetups and Conferences, all in one place
