@@ -8,17 +8,8 @@ export async function POST(req: NextRequest) {
 	try {
 		await connectDB();
 		const formData = await req.formData();
-		let event;
-		try {
-			event = Object.fromEntries(formData.entries());
-		} catch (err) {
-			console.log(err);
 
-			return NextResponse.json(
-				{ message: "Invalid JSON data format" },
-				{ status: 400 }
-			);
-		}
+		const eventData = Object.fromEntries(formData.entries());
 
 		const file = formData.get("image") as File | null;
 		if (!file) {
@@ -29,13 +20,13 @@ export async function POST(req: NextRequest) {
 		}
 
 		const tags = JSON.parse(formData.get("tags") as string) as string[];
-
 		const agenda = JSON.parse(formData.get("agenda") as string) as string[];
 
+		// Upload image to Cloudinary
 		const arrayBuffer = await file.arrayBuffer();
 		const buffer = Buffer.from(arrayBuffer);
 
-		const uploadResult = await new Promise((resolve, reject) => {
+		const uploadResult = await new Promise<any>((resolve, reject) => {
 			cloudinary.uploader
 				.upload_stream(
 					{
@@ -43,33 +34,34 @@ export async function POST(req: NextRequest) {
 						folder: "DevEvent"
 					},
 					(error, result) => {
-						if (error) {
-							reject(error);
-						}
+						if (error) return reject(error);
+						if (!result?.secure_url)
+							return reject(new Error("Cloudinary upload failed"));
 						resolve(result);
 					}
 				)
 				.end(buffer);
 		});
 
-		event.image = (uploadResult as { secure_url: string }).secure_url;
+		const eventDataWithImage = {
+			...eventData,
+			image: uploadResult.secure_url,
+			tags,
+			agenda
+		};
 
-		const createdEvent = await Event.create({
-			...event,
-			tags: tags,
-			agenda: agenda
-		});
+		const createdEvent = await Event.create(eventDataWithImage);
 
 		return NextResponse.json(
 			{ message: "Event created successfully", event: createdEvent },
 			{ status: 201 }
 		);
-	} catch (err) {
-		console.log(err);
+	} catch (error) {
+		console.error("POST /api/events error:", error);
 		return NextResponse.json(
 			{
 				message: "Event creation failed",
-				error: err instanceof Error ? err.message : "Unknown error"
+				error: error instanceof Error ? error.message : "Unknown error"
 			},
 			{ status: 500 }
 		);
@@ -79,18 +71,18 @@ export async function POST(req: NextRequest) {
 export async function GET() {
 	try {
 		await connectDB();
-		const events = await Event.find().sort({ createdAt: -1 });
+		const events = await Event.find().sort({ createdAt: -1 }).lean();
 
 		return NextResponse.json(
 			{ message: "Events fetched successfully", events },
 			{ status: 200 }
 		);
-	} catch (err) {
-		console.log(err);
+	} catch (error) {
+		console.error("GET /api/events error:", error);
 		return NextResponse.json(
 			{
 				message: "Event fetching failed",
-				error: err instanceof Error ? err.message : "Unknown error"
+				error: error instanceof Error ? error.message : "Unknown error"
 			},
 			{ status: 500 }
 		);
