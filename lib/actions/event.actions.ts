@@ -3,17 +3,6 @@
 import Event from "@/database/event.model";
 import connectDB from "@/lib/mongodb";
 
-// Define LeanEvent type (adjust fields as needed)
-export interface LeanEvent {
-	_id: string;
-	title: string;
-	slug: string;
-	image: string;
-	tags: string[];
-	date: string;
-	mode: string;
-}
-
 export const getSimilarEventsBySlug = async (
 	slug: string
 ): Promise<LeanEvent[]> => {

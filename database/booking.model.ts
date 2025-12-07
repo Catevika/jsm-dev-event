@@ -12,8 +12,7 @@ const BookingSchema = new Schema<IBooking>(
 		eventId: {
 			type: Schema.Types.ObjectId,
 			ref: "Event",
-			required: [true, "Event ID is required"],
-			index: true
+			required: [true, "Event ID is required"]
 		},
 		email: {
 			type: String,
@@ -28,8 +27,7 @@ const BookingSchema = new Schema<IBooking>(
 					return emailRegex.test(email);
 				},
 				message: "Please provide a valid email address"
-			},
-			index: true
+			}
 		}
 	},
 	{
