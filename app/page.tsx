@@ -1,23 +1,26 @@
 import EventCard from "@/components/EventCard";
 import ExploreBtn from "@/components/ExploreBtn";
-import type { IEvent } from "@/database";
-import { cacheLife } from "next/cache";
+import { getEvents } from "@/lib/actions/event.actions";
+import { connection } from "next/server";
+import { Suspense } from "react";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+const EventList = async () => {
+	await connection();
+	const events = await getEvents();
+
+	return (
+		<ul className='events'>
+			{events.length > 0 &&
+				events.map((event) => (
+					<li key={event.title}>
+						<EventCard {...event} />
+					</li>
+				))}
+		</ul>
+	);
+};
 
 const Home = async () => {
-	"use cache";
-	cacheLife("hours");
-
-	const response = await fetch(`${BASE_URL}/api/events`);
-	const data = await response.json();
-
-	if (!response.ok || !data || typeof data !== "object") {
-		throw new Error("Invalid or incomplete JSON data");
-	}
-
-	const { events } = data;
-
 	return (
 		<section>
 			<h1 className='text-center'>
@@ -32,15 +35,9 @@ const Home = async () => {
 
 			<div className='mt-20 space-y-7'>
 				<h3 id='events'>Featured Events</h3>
-				<ul className='events'>
-					{events &&
-						events.length > 0 &&
-						events.map((event: IEvent) => (
-							<li key={event.title}>
-								<EventCard {...event} />
-							</li>
-						))}
-				</ul>
+				<Suspense fallback={<ul className='events' />}>
+					<EventList />
+				</Suspense>
 			</div>
 		</section>
 	);
