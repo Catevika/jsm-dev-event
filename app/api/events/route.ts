@@ -1,6 +1,7 @@
 import Event from "@/database/event.model";
 import connectDB from "@/lib/mongodb";
 import { v2 as cloudinary } from "cloudinary";
+import type { UploadApiResponse } from "cloudinary";
 import { NextRequest, NextResponse } from "next/server";
 import type { File } from "node:buffer";
 
@@ -26,7 +27,7 @@ export async function POST(req: NextRequest) {
 		const arrayBuffer = await file.arrayBuffer();
 		const buffer = Buffer.from(arrayBuffer);
 
-		const uploadResult = await new Promise<any>((resolve, reject) => {
+		const uploadResult = await new Promise<UploadApiResponse>((resolve, reject) => {
 			cloudinary.uploader
 				.upload_stream(
 					{

@@ -2,7 +2,6 @@
 import Booking from "@/database/booking.model";
 import Event from "@/database/event.model";
 import connectDB from "../mongodb";
-import Error from "next/error";
 
 export async function createBooking({
 	eventId,
